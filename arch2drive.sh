@@ -171,10 +171,24 @@ if [ $? -eq 0 ]; then
         
         # Fonction pour tester si le token est valide
         test_token() {
-            curl -s --ssl-no-revoke \
+            local response
+            local http_code
+            
+            # Faire la requête et capturer à la fois la réponse et le code HTTP
+            response=$(curl -s -w "HTTPSTATUS:%{http_code}" --ssl-no-revoke \
                 -H "Authorization: Bearer $GOOGLE_DRIVE_ACCESS_TOKEN" \
-                "https://www.googleapis.com/drive/v3/about?fields=user" > /dev/null 2>&1
-            return $?
+                "https://www.googleapis.com/drive/v3/about?fields=user" 2>/dev/null)
+            
+            # Extraire le code HTTP
+            http_code=$(echo "$response" | grep -o "HTTPSTATUS:[0-9]*" | cut -d: -f2)
+            
+            # Vérifier si le code HTTP indique un succès (200-299)
+            if [[ "$http_code" -ge 200 && "$http_code" -lt 300 ]]; then
+                return 0  # Token valide
+            else
+                echo "🔍 Token invalide détecté (HTTP $http_code)"
+                return 1  # Token invalide
+            fi
         }
         
         # Tester le token actuel

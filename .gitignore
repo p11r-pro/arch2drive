@@ -93,3 +93,10 @@ fabric.properties
 
 ### Mac OS ###
 .DS_Store
+
+### Time-to-commit ###
+# Configuration personnelle (ne pas versionner)
+arch2drive.conf
+
+# Fichier de logs
+scheduler.log
